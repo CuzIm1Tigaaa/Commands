@@ -106,10 +106,52 @@ fn parse_sub(args: Vec<&str>) -> (bool, u32) {
     (true, binary)
 }
 
+fn parse_mul(args: Vec<&str>) -> (bool, u32) {
+    if args.len() < 5 || args[1] != "WITH" || args[3] != "INTO" {
+        return (false, 0);
+    }
+
+    let multiplicand = get_register_number(args[0]);
+    let multiplier = get_register_number(args[2]);
+    let result = get_register_number(args[4]);
+    if multiplicand > 15 || multiplier > 15 || result > 15 {
+        println!("Error: Register number out of range (0-15).");
+        return (false, 0);
+    }
+
+    let update = args.windows(2).any(|pair| pair == ["WITH", "UPDATE"]);
+
+    let mut binary = (update as u32) << 14;
+    binary |= ((multiplicand as u32) << 23) | ((multiplier as u32) << 19) | ((result as u32) << 15);
+    (true, binary)
+}
+
+fn parse_div(args: Vec<&str>) -> (bool, u32) {
+    if args.len() < 5 || args[1] != "BY" || args[3] != "INTO" {
+        return (false, 0);
+    }
+
+    let multiplicand = get_register_number(args[0]);
+    let multiplier = get_register_number(args[2]);
+    let result = get_register_number(args[4]);
+    if multiplicand > 15 || multiplier > 15 || result > 15 {
+        println!("Error: Register number out of range (0-15).");
+        return (false, 0);
+    }
+
+    let update = args.windows(2).any(|pair| pair == ["WITH", "UPDATE"]);
+
+    let mut binary = (update as u32) << 14;
+    binary |= ((multiplicand as u32) << 23) | ((multiplier as u32) << 19) | ((result as u32) << 15);
+    (true, binary)
+}
+
 define_instruction!(Nope, 0b0, "NOPE", parse_nope);
 define_instruction!(Let, 0b00001, "LET", parse_let);
 define_instruction!(Add, 0b01011, "ADD", parse_add);
 define_instruction!(Sub, 0b01100, "SUB", parse_sub);
+define_instruction!(Mul, 0b01101, "MUL", parse_mul);
+define_instruction!(Div, 0b01110, "DIV", parse_div); // TODO: Implement DIV instruction
 
 // 0000 0000 1000 0011 1110 1000 0000 0000
 // 0000 1000 1000 0011 1110 1000 0000 0000
