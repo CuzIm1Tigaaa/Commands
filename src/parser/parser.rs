@@ -1,6 +1,6 @@
-use crate::instructions::history::*;
+use crate::instructions::instructions::InstructionList;
 
-pub fn parse(schema: &mut History, file_content: &str) {
+pub fn parse(instruction_list: &mut InstructionList, file_content: &str) {
     for (line_no, line) in file_content.lines().enumerate() {
         if line.trim().is_empty() || line.trim().starts_with('#') {
             // empty lines and comments shall not be processed
@@ -12,7 +12,7 @@ pub fn parse(schema: &mut History, file_content: &str) {
             let label = line.trim();
             if label.split_whitespace().count() > 1 {
                 println!(
-                    "Error on line {0}: Label should not have arguments.",
+                    "Error on line {0}: A label should not have any arguments.",
                     line_no + 1
                 );
                 return;
@@ -25,7 +25,7 @@ pub fn parse(schema: &mut History, file_content: &str) {
         let args: Vec<&str> = line.split_whitespace().collect();
 
         let op_name = args[0];
-        let Some(op) = schema.get_instruction_by_name(op_name) else {
+        let Some(op) = instruction_list.get_instruction_by_name(op_name) else {
             println!(
                 "Error on line {0}:\n  Unknown instruction \"{1}\"",
                 line_no + 1,
@@ -48,10 +48,11 @@ pub fn parse(schema: &mut History, file_content: &str) {
                 line_no + 1,
                 op_name
             );
+            println!("  Please check the syntax for\n    {0}", format!("{:?}", args));
             return;
         } else {
-            println!("  Arguments are valid.");
-            println!("  Encoded: {:032b}", value);
+            // println!("  Arguments are valid.");
+            println!("  -> Encoded: {:032b}", value);
         }
 
         // let result = op.execute(args);

@@ -1,4 +1,3 @@
-pub mod history;
 pub mod instructions;
 
 #[cfg(test)]
